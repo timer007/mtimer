@@ -80,18 +80,21 @@
       cursor: pointer; 
       border: none; 
       border-radius: 4px; 
+      box-sizing: border-box;
     }
     .btn-start { background: #28a745; color: white; }
     .btn-stop { background: #dc3545; color: white; }
     .btn-reset { background: #6c757d; color: white; }
     .btn-preset { background: #17a2b8; color: white; }
     
-    /* 音ON/OFFボタン（文字変更でガタつかないよう幅を固定） */
+    /* 音ON/OFFボタン（文字固定サイズ） */
     .btn-sound { 
       background: #ffc107; 
       color: #333; 
-      min-width: 70px; 
+      width: 76px !important; 
+      min-width: 76px !important;
       text-align: center;
+      padding: 0 !important;
     }
 
     /* 上部一括操作エリア */

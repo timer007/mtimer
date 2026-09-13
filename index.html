@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>タイマー付き汎用メモ</title>
+  <title>タイマー付き汎用メモ (20行)</title>
   <style>
     body { 
       font-family: sans-serif; 
@@ -15,7 +15,7 @@
     /* 1行タイマー枠（スマホ等でもつぶれず折り返すレスポンシブ配置） */
     .timer-container {
       display: flex;
-      flex-wrap: wrap; /* 画面幅が狭い場合は綺麗に折り返す */
+      flex-wrap: wrap; 
       align-items: center;
       justify-content: center;
       gap: 6px;
@@ -37,12 +37,11 @@
       align-items: center;
       gap: 4px;
     }
-    /* スマホでもつぶれずアップダウンキーが出る幅・サイズ設定 */
     .num-input { 
       width: 48px; 
       height: 32px;
       padding: 2px 4px; 
-      font-size: 16px; /* スマホの自動ズーム防止 */
+      font-size: 16px; 
       text-align: center; 
       border: 1px solid #ccc; 
       border-radius: 4px; 
@@ -69,19 +68,19 @@
     .memo-row { 
       display: flex; 
       align-items: center;
-      gap: 8px; /* 入力欄同士の基本余白 */
+      gap: 8px; 
       margin-bottom: 8px; 
     }
     /* 日付・ID用入力欄（全角6文字／半角12文字対応＋右余白） */
     .id-input { 
-      width: 125px; /* 全角6文字分がしっかり入る幅 */
+      width: 125px; 
       height: 34px;
       padding: 4px 6px; 
       border: 1px solid #ccc; 
       border-radius: 4px; 
       text-align: center; 
       font-size: 15px;
-      margin-right: 4px; /* 右側に「＋余白」を追加 */
+      margin-right: 4px; 
       box-sizing: border-box;
     }
     /* メモ用入力欄 */
@@ -127,7 +126,7 @@
 
   <button class="save-btn" onclick="saveAllMemos()">すべて保存</button>
 
-  <!-- 10個のメモ枠 -->
+  <!-- 20個のメモ枠 -->
   <div id="memoContainer"></div>
 
   <script>
@@ -183,25 +182,25 @@
       updateDisplay();
     }
 
-    /* メモ処理（10行分） */
-    const TOTAL_MEMOS = 10;
+    /* メモ処理（20行分に拡張） */
+    const TOTAL_MEMOS = 20;
 
     window.onload = function() {
       const container = document.getElementById('memoContainer');
-      const savedData = JSON.parse(localStorage.getItem('my_10_memos')) || [];
+      const savedData = JSON.parse(localStorage.getItem('my_20_memos')) || [];
 
       for (let i = 0; i < TOTAL_MEMOS; i++) {
         const row = document.createElement('div');
         row.className = 'memo-row';
         
-        // 日付・コード入力欄（半角12文字／全角6文字対応・初期表示は完全空白）
+        // 日付・コード入力欄
         const idInput = document.createElement('input');
         idInput.type = 'text';
         idInput.className = 'id-input';
         idInput.placeholder = '080913';
-        idInput.maxLength = 12; // 最大12文字制限
+        idInput.maxLength = 12;
         idInput.id = `id_${i}`;
-        idInput.value = savedData[i] ? savedData[i].id : ''; // 保存データがない場合は空白
+        idInput.value = savedData[i] ? savedData[i].id : '';
 
         // メモ入力欄
         const textInput = document.createElement('input');
@@ -225,7 +224,7 @@
         memoList.push({ id: idVal, text: textVal });
       }
       
-      localStorage.setItem('my_10_memos', JSON.stringify(memoList));
+      localStorage.setItem('my_20_memos', JSON.stringify(memoList));
       alert('保存しました！');
     }
   </script>

@@ -85,7 +85,14 @@
     .btn-stop { background: #dc3545; color: white; }
     .btn-reset { background: #6c757d; color: white; }
     .btn-preset { background: #17a2b8; color: white; }
-    .btn-sound { background: #ffc107; color: #333; }
+    
+    /* 音ON/OFFボタン（文字変更でガタつかないよう幅を固定） */
+    .btn-sound { 
+      background: #ffc107; 
+      color: #333; 
+      min-width: 70px; 
+      text-align: center;
+    }
 
     /* 上部一括操作エリア */
     .global-controls {

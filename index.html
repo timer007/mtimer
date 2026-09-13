@@ -5,11 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>タイマー付き汎用メモ (20行)</title>
   <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333333;
+      --card-bg: #ffffff;
+      --border-color: #cccccc;
+      --input-bg: #ffffff;
+    }
+
+    body.dark-mode {
+      --bg-color: #1e1e1e;
+      --text-color: #e0e0e0;
+      --card-bg: #2d2d2d;
+      --border-color: #444444;
+      --input-bg: #3b3b3b;
+    }
+
     body { 
       font-family: sans-serif; 
       padding: 10px; 
-      background-color: #f4f4f4; 
+      background-color: var(--bg-color); 
+      color: var(--text-color);
       margin: 0;
+      transition: background-color 0.3s, color 0.3s;
     }
     
     /* 1行タイマー枠 */
@@ -19,9 +37,9 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      background: #fff;
+      background: var(--card-bg);
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       margin-bottom: 8px;
     }
@@ -43,7 +61,9 @@
       padding: 2px 4px; 
       font-size: 16px; 
       text-align: center; 
-      border: 1px solid #ccc; 
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color); 
       border-radius: 4px; 
       box-sizing: border-box;
     }
@@ -67,7 +87,7 @@
     .btn-preset { background: #17a2b8; color: white; }
     .btn-sound { background: #ffc107; color: #333; }
 
-    /* 一括操作エリア（保存・コピペ共通ボタン） */
+    /* 上部一括操作エリア */
     .global-controls {
       display: flex;
       gap: 8px;
@@ -107,7 +127,9 @@
       width: 125px; 
       height: 34px;
       padding: 4px 6px; 
-      border: 1px solid #ccc; 
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color); 
       border-radius: 4px; 
       text-align: center; 
       font-size: 14px;
@@ -117,10 +139,53 @@
       flex-grow: 1; 
       height: 34px;
       padding: 4px 8px; 
-      border: 1px solid #ccc; 
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color); 
       border-radius: 4px; 
       font-size: 14px;
       box-sizing: border-box;
+    }
+
+    /* 最下段コントロール・ポリシー */
+    .bottom-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+    .sub-btn {
+      flex: 1 1 calc(50% - 8px);
+      height: 36px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--card-bg);
+      color: var(--text-color);
+    }
+    .danger-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+    }
+
+    footer {
+      margin-top: 24px;
+      padding: 12px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #777777;
+      border-top: 1px solid var(--border-color);
+      background: var(--card-bg);
+      border-radius: 4px;
+    }
+    footer h4 {
+      margin: 0 0 6px 0;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -158,6 +223,21 @@
 
   <!-- 20個のメモ枠 -->
   <div id="memoContainer"></div>
+
+  <!-- 最下段コントロールボタン -->
+  <div class="bottom-controls">
+    <button class="sub-btn" onclick="toggleDarkMode()">ダークモード</button>
+    <button class="sub-btn danger-btn" onclick="clearAllMemos()">一括リセット</button>
+    <button class="sub-btn" onclick="exportCSV()">CSV書き出し</button>
+    <button class="sub-btn" onclick="document.getElementById('csvInput').click()">CSV読み込み</button>
+    <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
+  </div>
+
+  <!-- Google AdSense対応 プライバシーポリシー -->
+  <footer>
+    <h4>プライバシーポリシー</h4>
+    <p>当サイトでは、利用状況の分析および広告配信（Google AdSense等）のためにCookie（クッキー）を使用する場合があります。Cookieは、お客様がサイトを訪れた際の情報（個人を特定する情報は含まれません）を記録します。ブラウザの設定によりCookieの受け取りを拒否することも可能です。</p>
+  </footer>
 
   <script>
     /* アクティブな入力枠を追跡する処理 */
@@ -202,7 +282,7 @@
       });
     }
 
-    /* タイマー処理（バックグラウンド対応） */
+    /* タイマー処理 */
     let timerId = null;
     let endTime = null;
     let remainingSeconds = 0;
@@ -264,14 +344,12 @@
       updateDisplay(0);
     }
 
-    /* プリセットタイマー設定 */
     function setPreset(minutes) {
       resetTimer();
       document.getElementById('mInput').value = minutes;
       startTimer();
     }
 
-    /* アラーム音切替 */
     function toggleSound() {
       isSoundOn = !isSoundOn;
       const btn = document.getElementById('soundBtn');
@@ -291,7 +369,7 @@
       } catch(e) {}
     }
 
-    /* メモ処理（20行分） */
+    /* メモ処理 */
     const TOTAL_MEMOS = 20;
 
     window.onload = function() {
@@ -302,7 +380,6 @@
         const row = document.createElement('div');
         row.className = 'memo-row';
         
-        // ID/日付入力欄
         const idInput = document.createElement('input');
         idInput.type = 'text';
         idInput.className = 'id-input';
@@ -311,7 +388,6 @@
         idInput.id = `id_${i}`;
         idInput.value = savedData[i] ? savedData[i].id : '';
 
-        // メモ入力欄
         const textInput = document.createElement('input');
         textInput.type = 'text';
         textInput.className = 'text-input';
@@ -335,6 +411,63 @@
       
       localStorage.setItem('my_20_memos', JSON.stringify(memoList));
       alert('保存しました！');
+    }
+
+    /* 最下段追加機能 */
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function clearAllMemos() {
+      if (confirm('すべてのメモを消去して初期化しますか？')) {
+        for (let i = 0; i < TOTAL_MEMOS; i++) {
+          document.getElementById(`id_${i}`).value = '';
+          document.getElementById(`text_${i}`).value = '';
+        }
+        localStorage.removeItem('my_20_memos');
+        alert('一括リセット完了しました。');
+      }
+    }
+
+    function exportCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,ID/Date,Memo\n";
+      for (let i = 0; i < TOTAL_MEMOS; i++) {
+        const idVal = document.getElementById(`id_${i}`).value.replace(/"/g, '""');
+        const textVal = document.getElementById(`text_${i}`).value.replace(/"/g, '""');
+        csvContent += `"${idVal}","${textVal}"\n`;
+      }
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "memos.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split('\n');
+        let index = 0;
+
+        for (let i = 1; i < lines.length && index < TOTAL_MEMOS; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'));
+          if (cols.length >= 2) {
+            document.getElementById(`id_${index}`).value = cols[0] || '';
+            document.getElementById(`text_${index}`).value = cols[1] || '';
+            index++;
+          }
+        }
+        saveAllMemos();
+      };
+      reader.readAsText(file);
     }
   </script>
 

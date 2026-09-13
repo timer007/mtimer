@@ -383,6 +383,11 @@
     const TOTAL_MEMOS = 20;
 
     window.onload = function() {
+      // ダークモード設定の復元
+      if (localStorage.getItem('dark_mode') === 'true') {
+        document.body.classList.add('dark-mode');
+      }
+
       const container = document.getElementById('memoContainer');
       const savedData = JSON.parse(localStorage.getItem('my_20_memos')) || [];
 
@@ -425,7 +430,8 @@
 
     /* 最下段追加機能 */
     function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('dark_mode', isDark);
     }
 
     function clearAllMemos() {

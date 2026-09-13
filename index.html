@@ -12,7 +12,7 @@
       margin: 0;
     }
     
-    /* 1行タイマー枠（スマホ等でも崩れないレスポンシブ配置） */
+    /* 1行タイマー枠（スマホ等でもつぶれず折り返すレスポンシブ配置） */
     .timer-container {
       display: flex;
       flex-wrap: wrap; /* 画面幅が狭い場合は綺麗に折り返す */
@@ -42,7 +42,7 @@
       width: 48px; 
       height: 32px;
       padding: 2px 4px; 
-      font-size: 16px; /* スマホ自動ズーム防止 */
+      font-size: 16px; /* スマホの自動ズーム防止 */
       text-align: center; 
       border: 1px solid #ccc; 
       border-radius: 4px; 
@@ -69,10 +69,10 @@
     .memo-row { 
       display: flex; 
       align-items: center;
-      gap: 8px; /* 入力欄同士の基本的な余白 */
+      gap: 8px; /* 入力欄同士の基本余白 */
       margin-bottom: 8px; 
     }
-    /* 日付・ID用入力欄（全角6文字/半角12文字対応） */
+    /* 日付・ID用入力欄（全角6文字／半角12文字対応＋右余白） */
     .id-input { 
       width: 125px; /* 全角6文字分がしっかり入る幅 */
       height: 34px;
@@ -194,14 +194,14 @@
         const row = document.createElement('div');
         row.className = 'memo-row';
         
-        // 日付・コード入力欄（半角12文字／全角6文字対応）
+        // 日付・コード入力欄（半角12文字／全角6文字対応・初期表示は完全空白）
         const idInput = document.createElement('input');
         idInput.type = 'text';
         idInput.className = 'id-input';
         idInput.placeholder = '080913';
-        idInput.maxLength = 12; // 最大12文字に設定
+        idInput.maxLength = 12; // 最大12文字制限
         idInput.id = `id_${i}`;
-        idInput.value = savedData[i] ? savedData[i].id : '';
+        idInput.value = savedData[i] ? savedData[i].id : ''; // 保存データがない場合は空白
 
         // メモ入力欄
         const textInput = document.createElement('input');

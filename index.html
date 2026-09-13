@@ -23,7 +23,7 @@
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .timer-display { 
       font-size: 1.3rem; 
@@ -67,15 +67,44 @@
     .btn-preset { background: #17a2b8; color: white; }
     .btn-sound { background: #ffc107; color: #333; }
 
+    /* 一括操作エリア（保存・コピペ共通ボタン） */
+    .global-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .save-btn { 
+      flex-grow: 2; 
+      height: 40px;
+      font-size: 16px;
+      font-weight: bold; 
+      cursor: pointer; 
+      background: #007bff; 
+      color: white; 
+      border: none; 
+      border-radius: 4px; 
+    }
+    .clip-btn {
+      flex-grow: 1;
+      height: 40px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
     /* メモエリア */
     .memo-row { 
       display: flex; 
       align-items: center;
-      gap: 6px; 
+      gap: 8px; 
       margin-bottom: 8px; 
     }
     .id-input { 
-      width: 110px; 
+      width: 125px; 
       height: 34px;
       padding: 4px 6px; 
       border: 1px solid #ccc; 
@@ -92,28 +121,6 @@
       border-radius: 4px; 
       font-size: 14px;
       box-sizing: border-box;
-    }
-    .action-btn {
-      height: 34px;
-      padding: 0 8px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #e9ecef;
-    }
-    .save-btn { 
-      width: 100%; 
-      height: 40px;
-      font-size: 16px;
-      font-weight: bold; 
-      cursor: pointer; 
-      background: #007bff; 
-      color: white; 
-      border: none; 
-      border-radius: 4px; 
-      margin-bottom: 12px; 
     }
   </style>
 </head>
@@ -142,12 +149,59 @@
     </div>
   </div>
 
-  <button class="save-btn" onclick="saveAllMemos()">すべて保存</button>
+  <!-- 上部共通コントロールボタン -->
+  <div class="global-controls">
+    <button class="save-btn" onclick="saveAllMemos()">すべて保存</button>
+    <button class="clip-btn" onclick="copyActiveCell()">コピー</button>
+    <button class="clip-btn" onclick="pasteActiveCell()">ペースト</button>
+  </div>
 
   <!-- 20個のメモ枠 -->
   <div id="memoContainer"></div>
 
   <script>
+    /* アクティブな入力枠を追跡する処理 */
+    let lastActiveInput = null;
+
+    document.addEventListener('focusin', (e) => {
+      if (e.target.tagName === 'INPUT' && (e.target.classList.contains('id-input') || e.target.classList.contains('text-input'))) {
+        lastActiveInput = e.target;
+      }
+    });
+
+    /* アクティブセルのコピー機能 */
+    function copyActiveCell() {
+      if (!lastActiveInput) {
+        alert('コピーしたい入力欄（ID欄またはメモ欄）をクリックして選択してください。');
+        return;
+      }
+      const textToCopy = lastActiveInput.value;
+      if (!textToCopy) {
+        alert('選択されている欄は空です。');
+        return;
+      }
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        alert('コピーしました！');
+      }).catch(() => {
+        alert('コピーに失敗しました。');
+      });
+    }
+
+    /* アクティブセルのペースト機能 */
+    function pasteActiveCell() {
+      if (!lastActiveInput) {
+        alert('貼り付けたい入力欄（ID欄またはメモ欄）をクリックして選択してください。');
+        return;
+      }
+
+      navigator.clipboard.readText().then(text => {
+        lastActiveInput.value = text;
+      }).catch(() => {
+        alert('ペースト権限がないか失敗しました。');
+      });
+    }
+
     /* タイマー処理（バックグラウンド対応） */
     let timerId = null;
     let endTime = null;
@@ -230,14 +284,14 @@
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // 880Hz (ラ)
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
         osc.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 1.5); // 1.5秒鳴らす
+        osc.stop(ctx.currentTime + 1.5);
       } catch(e) {}
     }
 
-    /* メモ処理（20行分・コピー＆ペースト機能付き） */
+    /* メモ処理（20行分） */
     const TOTAL_MEMOS = 20;
 
     window.onload = function() {
@@ -265,47 +319,11 @@
         textInput.id = `text_${i}`;
         textInput.value = savedData[i] ? savedData[i].text : '';
 
-        // コピーボタン
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'action-btn';
-        copyBtn.textContent = 'コピー';
-        copyBtn.onclick = () => copyRow(i);
-
-        // ペーストボタン
-        const pasteBtn = document.createElement('button');
-        pasteBtn.className = 'action-btn';
-        pasteBtn.textContent = 'ペースト';
-        pasteBtn.onclick = () => pasteRow(i);
-
         row.appendChild(idInput);
         row.appendChild(textInput);
-        row.appendChild(copyBtn);
-        row.appendChild(pasteBtn);
         container.appendChild(row);
       }
     };
-
-    /* 行コピー機能 */
-    function copyRow(index) {
-      const idVal = document.getElementById(`id_${index}`).value;
-      const textVal = document.getElementById(`text_${index}`).value;
-      const content = idVal ? `${idVal} ${textVal}` : textVal;
-      
-      navigator.clipboard.writeText(content).then(() => {
-        alert(`${index + 1}行目をコピーしました！`);
-      }).catch(() => {
-        alert('コピーに失敗しました');
-      });
-    }
-
-    /* 行ペースト機能 */
-    function pasteRow(index) {
-      navigator.clipboard.readText().then(text => {
-        document.getElementById(`text_${index}`).value = text;
-      }).catch(() => {
-        alert('ペースト権限がないか失敗しました');
-      });
-    }
 
     function saveAllMemos() {
       const memoList = [];
